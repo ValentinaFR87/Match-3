@@ -157,8 +157,11 @@ public class FindMatches : MonoBehaviour//для определения конкретного колиества 
             //находиться ли элемент внутри доски
             if(i>=0 && i<board.width&&j>=0 && j<board.height)
                 {
-                    dots.Add(board.allDots[i, j]);
-                    board.allDots[i, j].GetComponent<Dot>().isMatched=true;
+                    if (board.allDots[i, j] != null)
+                    {
+                        dots.Add(board.allDots[i, j]);
+                        board.allDots[i, j].GetComponent<Dot>().isMatched = true;
+                    }
                 }
             }
         }
@@ -172,8 +175,13 @@ public class FindMatches : MonoBehaviour//для определения конкретного колиества 
         {
             if (board.allDots[col, i] != null)
             {
+                Dot dot = board.allDots[col,i].GetComponent<Dot>();
+                if (dot.isRowBomb)
+                {
+                    dots.Union(GetRowPieces(i)).ToList();
+                }
                 dots.Add(board.allDots[col, i]);
-                board.allDots[col,i].GetComponent<Dot>().isMatched = true;
+                dot.isMatched = true;
             }
         }
         return dots;
@@ -202,8 +210,13 @@ public class FindMatches : MonoBehaviour//для определения конкретного колиества 
         {
             if (board.allDots[ i,row] != null)
             {
+                Dot dot = board.allDots[ i,row].GetComponent<Dot>();
+                if (dot.isColBomb)
+                {
+                    dots.Union(GetColPieces(i)).ToList();
+                }
                 dots.Add(board.allDots[ i,row]);
-                board.allDots[i, row].GetComponent<Dot>().isMatched = true;
+                dot.isMatched = true;
             }
         }
         return dots;
@@ -218,19 +231,6 @@ public class FindMatches : MonoBehaviour//для определения конкретного колиества 
             {
                 //make it unmatched
                 board.currentDot.isMatched= false;
-                /*
-                //Decide what kind of bomb to make
-                int typeOfBomb = Random.Range(0, 100);
-                if(typeOfBomb <50)
-                {
-                    //make a row bomb
-                    board.currentDot.MakeRowBomb();
-                }else if (typeOfBomb >= 50)
-                {
-                    //make a col bomb
-                    board.currentDot.MakeColBomb();
-                }
-                */
 
                 if((board.currentDot.swipeAngle>-45 && board.currentDot.swipeAngle<=45)
                     || board.currentDot.swipeAngle < -135 && board.currentDot.swipeAngle >= 135)
@@ -250,19 +250,7 @@ public class FindMatches : MonoBehaviour//для определения конкретного колиества 
                 if (otherDot.isMatched) { 
                     //make it unmatched
                     otherDot.isMatched = false;
-                    /*
-                    int typeOfBomb = Random.Range(0, 100);
-                    if (typeOfBomb < 50)
-                    {
-                        //make a row bomb
-                        otherDot.MakeRowBomb();
-                    }
-                    else if (typeOfBomb >= 50)
-                    {
-                        //make a col bomb
-                        otherDot.MakeColBomb();
-                    }
-                    */
+                   
                     if ((board.currentDot.swipeAngle > -45 && board.currentDot.swipeAngle <= 45)
                    || board.currentDot.swipeAngle < -135 && board.currentDot.swipeAngle >= 135)
                     {

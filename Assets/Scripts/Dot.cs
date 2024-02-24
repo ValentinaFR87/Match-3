@@ -82,7 +82,7 @@ public class Dot : MonoBehaviour
         {
             
             tempPosition=new Vector2(targetX,transform.position.y);
-            transform.position=Vector2.Lerp(transform.position, tempPosition, .6f);
+            transform.position=Vector2.Lerp(transform.position, tempPosition, .2f);
             if (board.allDots[col,row]!=this.gameObject)
             {
                 board.allDots[col,row] = this.gameObject;
@@ -99,7 +99,7 @@ public class Dot : MonoBehaviour
         {
            
             tempPosition = new Vector2(transform.position.x, targetY);
-            transform.position = Vector2.Lerp(transform.position, tempPosition, .6f);
+            transform.position = Vector2.Lerp(transform.position, tempPosition, .2f);
             if (board.allDots[col, row] != this.gameObject)
             {
                 board.allDots[col, row] = this.gameObject;
@@ -314,6 +314,7 @@ public class Dot : MonoBehaviour
         isColorBomb = true;
         GameObject color = Instantiate(colorBomb, transform.position, Quaternion.identity);
         color.transform.parent = this.transform;
+        this.gameObject.tag = "Color";
     }
 
     public void MakeAdjecentBomb()

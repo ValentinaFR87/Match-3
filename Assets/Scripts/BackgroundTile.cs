@@ -7,9 +7,11 @@ public class BackgroundTile : MonoBehaviour
 {
     public int hitPoints;
     private SpriteRenderer sprite;
+    private CoalManager coalManager;
 
     private void Start()
     {
+        coalManager=FindObjectOfType<CoalManager>();
         sprite = GetComponent<SpriteRenderer>();
     }
     // Update is called once per frame
@@ -17,6 +19,11 @@ public class BackgroundTile : MonoBehaviour
     {
         if(hitPoints <= 0)
         {
+            if(coalManager!=null)
+            {
+                coalManager.CompareCoal(this.gameObject.tag);
+                coalManager.UpdateCoals();
+            }
             Destroy(this.gameObject);
         }
     }
