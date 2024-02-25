@@ -6,7 +6,10 @@ using UnityEngine;
 public enum GameState//перечисляемы типа для отслеживания состояния игры
 {
     wait,
-    move
+    move,
+    win,
+    lose,
+    pause
 }
 
 public enum TileKind
@@ -26,15 +29,24 @@ public class TileType
 
 public class Board : MonoBehaviour
 {
+    [Header("Scriptable Object Stuff")]
+    public World world;
+    public int level;
+
 
     public GameState currentState= GameState.move;
+    [Header("Board Dimensions")]
     public int width;
     public int height;
     public int offSet;//смещение 
+
+    [Header("Prefabs")]
     public GameObject tilePrefab;
     public GameObject breacableTilePrefab;
     public GameObject[] dots;
     public GameObject destroyEffect;
+
+    [Header("Layout")]
     public TileType[] boardLayot;
     private bool[,] blankSpaces;
     private BackgroundTile[,] breakableTiles; 
@@ -48,6 +60,25 @@ public class Board : MonoBehaviour
     private CoalManager coalManager;
     public float refillDelay = 0.5f;
     public int[] scoreGoals;
+
+    private void Awake()
+    {
+        if(world != null)
+        {
+            if (level < world.levels.Length)
+            {
+                if (world.levels[level] != null)
+                {
+                    width = world.levels[level].width;
+                    height = world.levels[level].height;
+                    dots = world.levels[level].dots;
+                    scoreGoals = world.levels[level].scoreCoals;
+                    boardLayot = world.levels[level].boardLayout;
+                }
+            }
+        }
+    }
+
     // Start is called before the first frame update
     void Start()
     {
@@ -59,6 +90,7 @@ public class Board : MonoBehaviour
         blankSpaces = new bool[width, height];
         allDots = new GameObject[width, height];
         SetUp();
+        currentState = GameState.pause;
     }
 
     public void GenerateBlankSpaces()

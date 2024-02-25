@@ -9,6 +9,7 @@ public class BlankCoal
     public int numberCollected;
     public Sprite goalSprite;
     public string matchValue;
+    
 }
 
 public class CoalManager : MonoBehaviour
@@ -18,10 +19,32 @@ public class CoalManager : MonoBehaviour
     public GameObject coalPrebaf;
     public GameObject coalIntroParent;
     public GameObject coalGameParent;
+    private Board board;
+    private EndGameManager endGame;
     // Start is called before the first frame update
     void Start()
     {
+        board=FindObjectOfType<Board>();
+        endGame = FindObjectOfType<EndGameManager>();
+        GetGoals();
         SetupCoals();
+    }
+
+    void GetGoals()
+    {
+        if (board != null)
+        {
+            if (board.world != null)
+            {
+                if (board.level < board.world.levels.Length)
+                {
+                    if (board.world.levels[board.level] != null)
+                    {
+                        levelCoals = board.world.levels[board.level].levelGoals;
+                    }
+                }
+            }
+        }
     }
 
     void SetupCoals()
@@ -55,6 +78,10 @@ public class CoalManager : MonoBehaviour
             }
             if (coalsCompleted >= levelCoals.Length)
             {
+                if (endGame != null)
+                {
+                    endGame.WinGame();
+                }
                 Debug.Log("You win!");
             }
         }
