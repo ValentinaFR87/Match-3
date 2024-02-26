@@ -41,6 +41,10 @@ public class CoalManager : MonoBehaviour
                     if (board.world.levels[board.level] != null)
                     {
                         levelCoals = board.world.levels[board.level].levelGoals;
+                        for (int i = 0; i < levelCoals.Length; i++)
+                        {
+                            levelCoals[i].numberCollected = 0;
+                        }
                     }
                 }
             }
@@ -65,7 +69,7 @@ public class CoalManager : MonoBehaviour
         }
     }
 
-   public void UpdateCoals()
+   public void UpdateGoals()
     {
         int coalsCompleted = 0;
         for(int i = 0; i < levelCoals.Length; i++)
@@ -74,7 +78,7 @@ public class CoalManager : MonoBehaviour
             if (levelCoals[i].numberCollected >= levelCoals[i].numberNeede)
             {
                 coalsCompleted++;
-                currentCoals[i].thisText.text = "" + levelCoals[i].numberNeede;
+                currentCoals[i].thisText.text = "" + levelCoals[i].numberNeede + "/" + levelCoals[i].numberNeede; ;
             }
             if (coalsCompleted >= levelCoals.Length)
             {

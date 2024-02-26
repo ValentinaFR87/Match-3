@@ -63,10 +63,13 @@ public class Board : MonoBehaviour
 
     private void Awake()
     {
+        if (PlayerPrefs.HasKey("Текущий уровень"))
+        {
+            level = PlayerPrefs.GetInt("Текущий уроваень");
+        }
         if(world != null)
         {
-            if (level < world.levels.Length)
-            {
+            
                 if (world.levels[level] != null)
                 {
                     width = world.levels[level].width;
@@ -75,7 +78,7 @@ public class Board : MonoBehaviour
                     scoreGoals = world.levels[level].scoreCoals;
                     boardLayot = world.levels[level].boardLayout;
                 }
-            }
+            
         }
     }
 
@@ -314,7 +317,7 @@ public class Board : MonoBehaviour
             if (coalManager != null)
             {
                 coalManager.CompareCoal(allDots[col, row].tag.ToString());
-                coalManager.UpdateCoals();
+                coalManager.UpdateGoals();
             }
            if(soundManager!= null)
             {

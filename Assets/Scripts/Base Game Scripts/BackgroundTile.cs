@@ -22,7 +22,7 @@ public class BackgroundTile : MonoBehaviour
             if(coalManager!=null)
             {
                 coalManager.CompareCoal(this.gameObject.tag);
-                coalManager.UpdateCoals();
+                coalManager.UpdateGoals();
             }
             Destroy(this.gameObject);
         }
