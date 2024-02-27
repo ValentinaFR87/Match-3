@@ -19,8 +19,8 @@ public class Dot : MonoBehaviour
     private HintManager hintManager;
     private FindMatches findMatches;
     private Board board;
-    private Vector2 firstTouchPosition;
-    private Vector2 finalTouchPosition;
+    private Vector2 firstTouchPosition=Vector2.zero;
+    private Vector2 finalTouchPosition=Vector2.zero;
     private Vector2 tempPosition;
 
     [Header("Swipe Stuff")]
@@ -60,26 +60,16 @@ public class Dot : MonoBehaviour
 
         endGameManager=FindObjectOfType<EndGameManager>();
         hintManager=FindAnyObjectByType<HintManager>();
-        board=FindObjectOfType<Board>();
+        board = GameObject.FindWithTag("Board").GetComponent<Board>();
+       
         findMatches= FindObjectOfType<FindMatches>();
-        //targetX=(int)transform.position.x;
-        //targetY = (int)transform.position.y;
-        //row = targetY;
-        //col= targetX;
-        //prewiousCol = col;
-        //prewiousRow = row;
+        
     }
 
     // Update is called once per frame
     void Update()//вызывается каждый кадр и отвечает за перемещение элементов по игровому полю.
     {
-       // FindMatches();
-       /* if(isMatched)//если есть одинаковые элементы делаем их прозрачными
-        {
-            SpriteRenderer mySprite = GetComponent<SpriteRenderer>();
-            mySprite.color=new Color(1f,1f,1f,.2f);
-        }
-       */
+       
         targetX = col;
         targetY = row;
         if(Mathf.Abs(targetX-transform.position.x) > .1)//плавное перемещение элементов к целевой позиции
@@ -90,8 +80,9 @@ public class Dot : MonoBehaviour
             if (board.allDots[col,row]!=this.gameObject)
             {
                 board.allDots[col,row] = this.gameObject;
+                findMatches.FindAllMatche();//поиск совпадающих элементов после каждого перемещения
             }
-            findMatches.FindAllMatche();//поиск совпадающих элементов после каждого перемещения
+            
         }
         else
         {
@@ -107,8 +98,9 @@ public class Dot : MonoBehaviour
             if (board.allDots[col, row] != this.gameObject)
             {
                 board.allDots[col, row] = this.gameObject;
+                findMatches.FindAllMatche();//поиск совпадающих элементов после каждого перемещения
+
             }
-            findMatches.FindAllMatche();//поиск совпадающих элементов после каждого перемещения
         }
         else
         {
@@ -201,67 +193,49 @@ public class Dot : MonoBehaviour
         otherDot = board.allDots[col + (int)direction.x, row+(int)direction.y];
         prewiousCol = col;
         prewiousRow = row;
-        if (otherDot != null)
+        if (board.lockTiles[col, row] == null && board.lockTiles[col + (int)direction.x, row + (int)direction.y] == null)
         {
-            otherDot.GetComponent<Dot>().col += -1 * (int)direction.x;
-            otherDot.GetComponent<Dot>().row += -1 * (int)direction.y;
-            col += (int)direction.x;
-            row += (int)direction.y;
-            StartCoroutine(CheckMoveCo());
+            if (otherDot != null)
+            {
+                otherDot.GetComponent<Dot>().col += -1 * (int)direction.x;
+                otherDot.GetComponent<Dot>().row += -1 * (int)direction.y;
+                col += (int)direction.x;
+                row += (int)direction.y;
+                StartCoroutine(CheckMoveCo());
+            }
+            else
+            {
+                board.currentState = GameState.move;
+            }
         }
         else
         {
-            board.currentState=GameState.move;
+            board.currentState = GameState.move;
         }
     }
 
     void MovePieces()//в зависимости от угла выбираем в какую сторону переместиться элемент
     {
+
         if (swipeAngle > -45 && swipeAngle <= 45 && col < board.width - 1)//свайп вправо
         {
-            /* otherDot = board.allDots[col+1,row];
-             prewiousCol = col;
-             prewiousRow = row;
-             otherDot.GetComponent<Dot>().col -= 1;
-             col += 1;
-             StartCoroutine(CheckMoveCo());
-            */
+            
             MovePiecesActual(Vector2.right);
         }
         else if (swipeAngle > 45 && swipeAngle <= 135 && row < board.height - 1)//свайп вверх
         {
-            /*  otherDot = board.allDots[col, row+1];
-              prewiousCol = col;
-              prewiousRow = row;
-              otherDot.GetComponent<Dot>().row -= 1;
-              row += 1;
-              StartCoroutine(CheckMoveCo());
-            */
+            
             MovePiecesActual(Vector2.up);
         }
         else if ((swipeAngle > 135 || swipeAngle <= -135) && col > 0)//свайп влево
         {
 
-            /* 
-             otherDot = board.allDots[col - 1, row];
-            prewiousCol = col;
-            prewiousRow = row;
-            otherDot.GetComponent<Dot>().col += 1;
-            col -= 1;
-            StartCoroutine(CheckMoveCo());
-            */
+            
             MovePiecesActual(Vector2.left);
         }
         else if (swipeAngle < -45 && swipeAngle >= -135 && row > 0)//свайп вниз
         {
-            /*
-            otherDot = board.allDots[col, row-1];
-            prewiousCol = col;
-            prewiousRow = row;
-            otherDot.GetComponent<Dot>().row += 1;
-            row -= 1;
-            StartCoroutine(CheckMoveCo());
-            */
+           
             MovePiecesActual(Vector2.down);
         }
         else
@@ -308,30 +282,40 @@ public class Dot : MonoBehaviour
 
     public void MakeRowBomb()
     {
-        isRowBomb = true;
-        GameObject arrow = Instantiate(rowArrow, transform.position, Quaternion.identity);
-        arrow.transform.parent = this.transform;
+        
+            isRowBomb = true;
+            GameObject arrow = Instantiate(rowArrow, transform.position, Quaternion.identity);
+            arrow.transform.parent = this.transform;
+        
     }
 
     public void MakeColBomb()
     {
-        isColBomb = true;
-        GameObject arrow = Instantiate(colArrow, transform.position, Quaternion.identity);
-        arrow.transform.parent = this.transform;
+       
+            isColBomb = true;
+            GameObject arrow = Instantiate(colArrow, transform.position, Quaternion.identity);
+            arrow.transform.parent = this.transform;
+        
     }
 
     public void MakeColorBomb()
     {
-        isColorBomb = true;
-        GameObject color = Instantiate(colorBomb, transform.position, Quaternion.identity);
-        color.transform.parent = this.transform;
-        this.gameObject.tag = "Color";
+        if (!isColBomb && !isRowBomb && !isAdjacentBomb)
+        {
+            isColorBomb = true;
+            GameObject color = Instantiate(colorBomb, transform.position, Quaternion.identity);
+            color.transform.parent = this.transform;
+            this.gameObject.tag = "Color";
+        }
     }
 
     public void MakeAdjecentBomb()
     {
-        isAdjacentBomb = true;
-        GameObject marker = Instantiate(AdjacentMarker, transform.position, Quaternion.identity);
-        marker.transform.parent = this.transform;
+        if (!isColBomb && !isColorBomb && !isRowBomb)
+        {
+            isAdjacentBomb = true;
+            GameObject marker = Instantiate(AdjacentMarker, transform.position, Quaternion.identity);
+            marker.transform.parent = this.transform;
+        }
     }
 }

@@ -19,7 +19,7 @@ public class FindMatches : MonoBehaviour//для определения конкретного колиества 
         StartCoroutine(FindAllMatchesCo());
     }
 
-    private List<GameObject> IsAdjacentBomb(Dot dot1, Dot dot2, Dot dot3)
+    private List<GameObject> IsAdjacentBomb(Dot dot1, Dot dot2, Dot dot3)//проверяет является ли элементы бомбой которая уничтожает по 6-9 элементов
     {
         List<GameObject> currentDots = new List<GameObject>();
         if (dot1.isAdjacentBomb)
@@ -37,38 +37,44 @@ public class FindMatches : MonoBehaviour//для определения конкретного колиества 
         return currentDots;
     }
 
-    private List<GameObject> IsRowBomb(Dot dot1, Dot dot2,Dot dot3)
+    private List<GameObject> IsRowBomb(Dot dot1, Dot dot2,Dot dot3)//проверяет является ли элементы бомбой строки
     {
         List<GameObject> currentDots = new List<GameObject>();
         if (dot1.isRowBomb)
         {
             currentMatches.Union(GetRowPieces(dot1.row));
+            board.BombRow(dot1.row);
         }
         if (dot2.isRowBomb)
         {
             currentMatches.Union(GetRowPieces(dot2.row));
+            board.BombRow(dot2.row);
         }
         if (dot3.isRowBomb)
         {
             currentMatches.Union(GetRowPieces(dot3.row));
+            board.BombRow(dot3.row);
         }
         return currentDots;
     }
 
-    private List<GameObject> IsColBomb(Dot dot1, Dot dot2, Dot dot3)
+    private List<GameObject> IsColBomb(Dot dot1, Dot dot2, Dot dot3)//проверяет является ли элементы бомбой столбца
     {
         List<GameObject> currentDots = new List<GameObject>();
         if (dot1.isColBomb)
         {
             currentMatches.Union(GetColPieces(dot1.col));
+            board.BombCol(dot1.col);
         }
         if (dot2.isColBomb)
         {
             currentMatches.Union(GetColPieces(dot2.col));
+            board.BombCol(dot2.col);
         }
         if (dot3.isColBomb)
         {
             currentMatches.Union(GetColPieces(dot3.col));
+            board.BombCol(dot3.col);
         }
         return currentDots;
     }
@@ -82,7 +88,7 @@ public class FindMatches : MonoBehaviour//для определения конкретного колиества 
         dot.GetComponent<Dot>().isMatched = true;
     }
 
-    private void GetNearbyPieces(GameObject dot1, GameObject dot2, GameObject dot3)
+    private void GetNearbyPieces(GameObject dot1, GameObject dot2, GameObject dot3)//добавляем элементы в список currentMatches
     {
         AddToListAndMatch(dot1);
         AddToListAndMatch(dot2);
@@ -92,8 +98,9 @@ public class FindMatches : MonoBehaviour//для определения конкретного колиества 
 
     private IEnumerator FindAllMatchesCo()
     {
-        yield return new WaitForSeconds(.2f);//задержка на 0.2 секунды
-        for(int i = 0; i < board.width; i++)
+        //yield return new WaitForSeconds(.2f);//задержка на 0.2 секунды
+        
+        for (int i = 0; i < board.width; i++)
         {
             for(int j = 0; j < board.height; j++)
             {
@@ -146,9 +153,11 @@ public class FindMatches : MonoBehaviour//для определения конкретного колиества 
                 }
             }
         }
+       yield return null;
+        
     }
 
-    List<GameObject> GetAdjacentPieces(int col,int row)
+    List<GameObject> GetAdjacentPieces(int col,int row)//возвращает список GameObject, содержащий смежные элементы игрового поля по указанным координатам col и row
     {
         List<GameObject> dots = new List<GameObject>();
         for(int i=col-1;i<=col+1;i++)
@@ -168,7 +177,7 @@ public class FindMatches : MonoBehaviour//для определения конкретного колиества 
         return dots;
     }
 
-    List<GameObject> GetColPieces(int col)
+    List<GameObject> GetColPieces(int col)//метод возвращает список содержащий элементы в указанном столбце col.
     {
         List<GameObject> dots = new List<GameObject>();
         for(int i=0;i<board.height;i++)
@@ -187,13 +196,13 @@ public class FindMatches : MonoBehaviour//для определения конкретного колиества 
         return dots;
     }
 
-    public void MatchPiecesOfColor(string color)
+    public void MatchPiecesOfColor(string color)//помечает все элементы на игровом поле с тегом, соответствующим указанному цвету
     {
         for(int i=0;i<board.width;i++)
         {
             for(int j=0;j<board.height;j++)
             {
-                //check if that piece exists
+               
                 if (board.allDots[i,j] != null)
                 {
                     if (board.allDots[i,j].tag==color) {
@@ -203,7 +212,7 @@ public class FindMatches : MonoBehaviour//для определения конкретного колиества 
             }
         }  
     }
-    List<GameObject> GetRowPieces(int row)
+    List<GameObject> GetRowPieces(int row)//метод возвращает список содержащий элементы в указанном столбце row
     {
         List<GameObject> dots = new List<GameObject>();
         for (int i = 0; i < board.width; i++)
@@ -221,15 +230,14 @@ public class FindMatches : MonoBehaviour//для определения конкретного колиества 
         }
         return dots;
     }
-    public void CheckBombs()
+    public void CheckBombs(MatchType matchType)//проверям бомбым row and col и создаем их 
     {
-        //did the player move sometching?
+        
         if(board.currentDot!= null)
         {
-            //is thr piece they moved matched&
-            if (board.currentDot.isMatched)
+            if (board.currentDot.isMatched && board.currentDot.tag==matchType.color)
             {
-                //make it unmatched
+                
                 board.currentDot.isMatched= false;
 
                 if((board.currentDot.swipeAngle>-45 && board.currentDot.swipeAngle<=45)
@@ -243,12 +251,12 @@ public class FindMatches : MonoBehaviour//для определения конкретного колиества 
                     board.currentDot.MakeRowBomb();
                 }
             }
-            //is the ofther piece matched?
+            
             else if(board.currentDot.otherDot!=null) {
                 Dot otherDot = board.currentDot.otherDot.GetComponent<Dot>();
-                //is the other Dot matched?
-                if (otherDot.isMatched) { 
-                    //make it unmatched
+                
+                if (otherDot.isMatched && otherDot.tag==matchType.color) { 
+                    
                     otherDot.isMatched = false;
                    
                     if ((board.currentDot.swipeAngle > -45 && board.currentDot.swipeAngle <= 45)
@@ -266,9 +274,5 @@ public class FindMatches : MonoBehaviour//для определения конкретного колиества 
             }
         }
     }
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+  
 }

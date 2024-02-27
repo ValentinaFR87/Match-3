@@ -31,9 +31,5 @@ public class BackToMain : MonoBehaviour
         gameData=FindObjectOfType<GameData>();
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    
 }

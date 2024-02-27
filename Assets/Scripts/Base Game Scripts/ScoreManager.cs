@@ -11,6 +11,7 @@ public class ScoreManager : MonoBehaviour
     public int score;
     public Image scoreBar;
     private GameData gameData;
+    private int numberStarts;
 
     // Use this for initialization
     void Start()
@@ -29,17 +30,31 @@ public class ScoreManager : MonoBehaviour
     public void IncreaseScore(int amountToIncrease)
     {
         score += amountToIncrease;
+        for(int i = 0;i<board.scoreGoals.Length;i++)
+        {
+            if (score > board.scoreGoals[i] && numberStarts<i+1)
+            {
+                numberStarts++;
+            }
+        }
         if(gameData!= null)
         {
             int highScore = gameData.saveData.highScores[board.level];
             if (score > highScore)
             {
-                gameData.saveData.highScores[board.level] = score;
+                gameData.saveData.highScores[board.level] = score;       
+            }
+            int currentStars = gameData.saveData.stars[board.level];
+            if (numberStarts > currentStars)
+            {
+                gameData.saveData.stars[board.level] = numberStarts;
             }
             gameData.Save();
         }
         UpdateBar();
     }
+
+    
 
     private void UpdateBar()
     {

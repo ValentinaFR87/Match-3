@@ -60,7 +60,21 @@ public class GameData : MonoBehaviour
             file.Close();
             Debug.Log("Loaded");
         }
+        else
+        {
+            saveData= new SaveData();
+            saveData.isActive = new bool[100];
+            saveData.stars = new int[100];
+            saveData.highScores = new int[100];
+            saveData.isActive[0] = true;
 
+        }
+
+    }
+
+    private void OnApplicationQuit()
+    {
+        Save();
     }
 
     // Update is called once per frame
